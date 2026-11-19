@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#141613">
+  <meta name="description" content="Grafica funciones, explora coordenadas y realiza cálculos científicos en Eje.">
+  <title>Eje · Calculadora gráfica</title>
+  <link rel="icon" href="./eje.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./style.css">
+  <script defer src="./vendor/gsap.min.js"></script>
+  <script type="module" src="./app.mjs"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="app-header">
+      <div class="brand" aria-label="Eje">
+        <span class="brand-icon" data-icon="logo"></span>
+        <span class="brand-name">eje<span>.</span></span>
+      </div>
+      <nav class="mode-switch" aria-label="Modo de calculadora">
+        <button class="mode-btn is-active" type="button" data-mode="graph" aria-pressed="true"><span data-icon="line-chart"></span> Gráfica</button>
+        <button class="mode-btn" type="button" data-mode="scientific" aria-pressed="false"><span data-icon="calculator"></span> Científica</button>
+      </nav>
+      <div class="header-tools">
+        <button class="icon-btn" id="open-history" type="button" aria-label="Historial" title="Historial" data-icon="history"></button>
+        <button class="icon-btn" id="open-help" type="button" aria-label="Ayuda y atajos" title="Ayuda y atajos" data-icon="help"></button>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro" aria-labelledby="page-title">
+        <div>
+          <h1 class="intro-title" id="page-title">Calculadora gráfica<span>.</span></h1>
+          <p class="intro-description" id="page-description">Grafica funciones, explora sus valores y calcula con precisión.</p>
+        </div>
+        <div class="intro-actions" id="graph-intro-actions">
+          <button class="secondary-btn" id="open-examples" type="button"><span data-icon="sliders"></span> Ejemplos</button>
+        </div>
+      </section>
+
+      <div class="workspace" id="workspace" data-mode="graph">
+        <section class="expression-panel panel" aria-label="Expresiones y calculadora">
+          <div class="expressions" id="expression-section">
+            <div class="panel-heading">
+              <div>
+                <h2 class="panel-title">Expresiones</h2>
+                <p class="panel-subtitle">Escribe una función en <i>x</i>.</p>
+              </div>
+              <button class="add-btn" id="add-expression" type="button" aria-label="Añadir expresión" title="Añadir expresión" data-icon="plus"></button>
+            </div>
+            <div class="expression-list" id="expression-list"></div>
+            <div class="parameter-panel" id="parameter-panel" hidden></div>
+          </div>
+
+          <section class="calculator" aria-labelledby="calculator-title">
+            <div class="calculator-header">
+              <h2 class="panel-title" id="calculator-title">Teclado científico</h2>
+              <div class="angle-switch" aria-label="Unidad angular">
+                <button class="angle-btn is-active" data-angle="rad" type="button" aria-pressed="true">RAD</button>
+                <button class="angle-btn" data-angle="deg" type="button" aria-pressed="false">DEG</button>
+              </div>
+            </div>
+            <div class="display">
+              <label class="sr-only" for="calculation">Operación</label>
+              <input class="display-input" id="calculation" type="text" inputmode="none" autocomplete="off" autocorrect="off" spellcheck="false" placeholder="Escribe una operación">
+              <div class="display-bottom">
+                <span class="display-prompt" aria-hidden="true">=</span>
+                <output class="display-result" id="calculation-result" aria-live="polite">0</output>
+              </div>
+            </div>
+            <p class="display-error" id="calculation-error" role="alert" hidden></p>
+            <div class="keypad" id="keypad" aria-label="Teclas de la calculadora"></div>
+          </section>
+        </section>
+
+        <section class="graph-panel panel" id="graph-panel" aria-label="Plano cartesiano">
+          <div class="graph-header">
+            <div class="graph-heading">
+              <span class="graph-heading-icon" data-icon="line-chart"></span>
+              <h2 class="panel-title">Plano cartesiano</h2>
+            </div>
+            <div class="graph-tabs" role="tablist" aria-label="Vista del gráfico">
+              <button class="graph-tab is-active" id="plot-tab" type="button" role="tab" aria-selected="true" aria-controls="plot-view" data-view="plot"><span data-icon="line-chart"></span> Gráfica</button>
+              <button class="graph-tab" id="table-tab" type="button" role="tab" aria-selected="false" aria-controls="table-view" data-view="table" tabindex="-1"><span data-icon="table"></span> Tabla</button>
+            </div>
+            <div class="graph-tools">
+              <button class="icon-btn" id="analyze" type="button" aria-label="Analizar función" title="Analizar función" data-icon="target"></button>
+              <button class="icon-btn" id="export" type="button" aria-label="Descargar gráfica PNG" title="Descargar gráfica PNG" data-icon="download"></button>
+              <button class="icon-btn" id="fullscreen" type="button" aria-label="Ampliar plano" title="Ampliar plano" data-icon="expand"></button>
+            </div>
+          </div>
+          <div class="graph-stage" id="plot-view" role="tabpanel" aria-labelledby="plot-tab">
+            <canvas id="plot" class="plot-canvas" tabindex="0" aria-label="Plano interactivo. Usa las flechas para moverlo y las teclas más y menos para cambiar el zoom." aria-describedby="plot-hint">El plano cartesiano requiere un navegador compatible con Canvas.</canvas>
+            <div class="plot-controls" aria-label="Controles del gráfico">
+              <button class="plot-button" id="zoom-in" type="button" aria-label="Acercar" title="Acercar" data-icon="plus"></button>
+              <button class="plot-button" id="zoom-out" type="button" aria-label="Alejar" title="Alejar" data-icon="minus"></button>
+              <button class="plot-button" id="reset-view" type="button" aria-label="Restablecer vista" title="Restablecer vista" data-icon="crosshair"></button>
+              <button class="plot-button" id="toggle-trace" type="button" aria-label="Rastrear curva" aria-pressed="false" title="Rastrear curva" data-icon="move"></button>
+            </div>
+            <div class="trace-info" id="trace-info" hidden></div>
+          </div>
+          <div class="table-view" id="table-view" role="tabpanel" aria-labelledby="table-tab" hidden>
+            <div class="table-controls">
+              <label>Desde <input id="table-start" type="number" step="any" value="-4"></label>
+              <label>Paso <input id="table-step" type="number" step="any" min="0" value="1"></label>
+              <button class="secondary-btn" id="export-csv" type="button"><span data-icon="download"></span> CSV</button>
+            </div>
+            <p id="table-message" class="display-error" role="alert" hidden></p>
+            <div class="table-scroll"><table class="data-table" id="data-table" aria-label="Valores de las funciones"></table></div>
+          </div>
+          <div class="graph-status" id="plot-hint">
+            <span class="plot-mode"><span class="status-dot"></span><span id="series-count">2 funciones visibles</span></span>
+            <span class="plot-coordinates" id="coordinates">x 0&nbsp;&nbsp; y 0</span>
+            <span class="plot-hint-text">Arrastra para mover · Desplaza para hacer zoom</span>
+          </div>
+        </section>
+
+        <section class="history-panel panel" id="history-panel" aria-labelledby="scientific-history-title" hidden>
+          <div class="graph-header">
+            <div class="graph-heading">
+              <span class="graph-heading-icon" data-icon="history"></span>
+              <h2 class="panel-title" id="scientific-history-title">Historial de cálculo</h2>
+            </div>
+            <button class="secondary-btn" id="clear-inline-history" type="button">Borrar historial</button>
+          </div>
+          <div class="history-list inline-history" id="inline-history"></div>
+        </section>
+      </div>
+    </main>
+
+    <footer class="app-footer">
+      <div class="shortcuts"><span data-icon="keyboard"></span><span><kbd class="kbd">Enter</kbd> calcular</span><span><kbd class="kbd">Esc</kbd> cerrar</span></div>
+      <button class="footer-link" id="footer-help" type="button">Atajos de teclado</button>
+    </footer>
+  </div>
+
+  <dialog class="modal" id="modal" aria-labelledby="modal-title">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2 id="modal-title"></h2>
+        <button class="icon-btn" id="close-modal" type="button" aria-label="Cerrar" data-icon="x"></button>
+      </div>
+      <div id="modal-content"></div>
+    </div>
+  </dialog>
+  <div class="toast" id="toast" role="status" hidden></div>
+</body>
+</html>
