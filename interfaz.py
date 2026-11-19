@@ -343,7 +343,7 @@ class _Calculadora:
         )
         self.contador.configure(padx=7, pady=3)
         self.contador.grid(row=0, column=1, sticky="e")
-        self._etiqueta(panel, "Últimos cinco cálculos", 11, SECUNDARIO).grid(
+        self._etiqueta(panel, "Todas las operaciones", 11, SECUNDARIO).grid(
             row=1, column=0, sticky="w", pady=(2, 13),
         )
         panel.grid_rowconfigure(2, weight=1)
@@ -478,7 +478,7 @@ class _Calculadora:
 
     def _actualizar_historial(self):
         items = self.listar(self.historial)
-        self.contador.configure(text=f"{len(items)} / 5")
+        self.contador.configure(text=str(len(items)))
         self.borrar.state(["!disabled"] if items else ["disabled"])
         for fila in self.filas.winfo_children():
             fila.destroy()
